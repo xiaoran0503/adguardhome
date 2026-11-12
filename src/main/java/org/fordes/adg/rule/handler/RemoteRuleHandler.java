@@ -7,16 +7,10 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.fordes.adg.rule.config.FilterConfig;
-import org.fordes.adg.rule.config.RuleConfig;
-import org.fordes.adg.rule.enums.RuleType;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @Component
@@ -42,11 +36,5 @@ public class RemoteRuleHandler extends RuleHandler {
             log.debug(ExceptionUtil.stacktraceToString(e));
         }
         return new RuleSource(IoUtil.toStream(new byte[0]), StandardCharsets.UTF_8);
-    }
-
-    @Override
-    @Async("ruleExecutor")
-    public void handle(RuleConfig.Prop prop, Map<RuleType, Set<BufferedOutputStream>> typeStreamMap) {
-        super.handle(prop, typeStreamMap);
     }
 }
