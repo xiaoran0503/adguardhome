@@ -139,6 +139,19 @@
                     <encoding>UTF-8</encoding>
                     <!-- Spring 需要构造器参数名，等价于 -parameters -->
                     <parameters>true</parameters>
+                    <!-- JDK 23 起 javac 不再默认运行 classpath 上的注解处理器，必须显式声明处理器路径 -->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-configuration-processor</artifactId>
+                            <version>${spring-boot.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>
