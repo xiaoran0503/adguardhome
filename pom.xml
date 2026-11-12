@@ -13,11 +13,14 @@
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring-boot.version>3.1.3</spring-boot.version>
-        <hutool.version>5.8.24</hutool.version>
-        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-        <!-- Spring Boot 3.1.x 的 BOM 管理的是 1.18.28，撑不住 JDK 21 的 javac，需显式抬高 -->
+        <spring-boot.version>4.1.2</spring-boot.version>
+        <hutool.version>5.8.48</hutool.version>
+        <!-- Spring Boot 的 BOM 管理的 lombok 版本在 JDK 21 的 javac 下不可用，导入 BOM 的属性无法覆盖，故显式抬高 -->
         <lombok.version>1.18.48</lombok.version>
+        <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
+        <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
+        <maven-surefire-plugin.version>3.6.1</maven-surefire-plugin.version>
     </properties>
 
     <dependencies>
@@ -61,7 +64,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <dependencyManagement>
@@ -83,18 +85,36 @@
     </dependencyManagement>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven-resources-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven-jar-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <!-- release 让编译器按目标版本的 API 校验，避免误用高版本 JDK 的 API -->
+                    <release>${java.version}</release>
                     <encoding>UTF-8</encoding>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
+                    <!-- Spring 需要构造器参数名，等价于 -parameters -->
+                    <parameters>true</parameters>
                 </configuration>
             </plugin>
             <plugin>
