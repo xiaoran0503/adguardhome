@@ -20,6 +20,7 @@ import org.fordes.adg.rule.util.SpringUtil;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -54,7 +55,14 @@ public abstract class RuleHandler {
         AtomicInteger repeat = new AtomicInteger();
 
         Map<RuleType, Set<String>> dataMap = MapUtil.newHashMap();
-        RuleSource source = open(prop.getPath());
+        RuleSource source;
+        try {
+            source = open(prop.getPath());
+        } catch (Exception e) {
+            // 规则源不可用（如本地规则文件缺失）时记录原因并跳过，不让异常逃逸成未捕获的异步异常
+            log.error("规则<{}> 打开失败 => {}", prop.getName(), e.getMessage());
+            source = new RuleSource(IoUtil.toStream(new byte[0]), StandardCharsets.UTF_8);
+        }
         //按行读取并处理
         try (BufferedReader reader = IoUtil.getReader(source.stream(), source.charset())) {
             IoUtil.readLines(reader, (LineHandler) line -> {
