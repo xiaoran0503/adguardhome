@@ -42,7 +42,7 @@ application:
         path: 'local-rule.txt'
   output:
     file_header: |  #输出文件头, 占位符${name}将被替换为文件名，如all.txt,  ${date} 将被替换为当前日期
-      [关圣®云去广告DNS 去广告规则列表]
+      ! [关圣®云去广告DNS 去广告规则列表]
       ! Title: ${name}
       ! Last Modified: ${date}
       ! Homepage: https://github.com/xiaoran0503/adguardhome/
