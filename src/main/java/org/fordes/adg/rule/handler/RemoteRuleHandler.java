@@ -9,50 +9,39 @@ import lombok.extern.slf4j.Slf4j;
 import org.fordes.adg.rule.config.FilterConfig;
 import org.fordes.adg.rule.config.RuleConfig;
 import org.fordes.adg.rule.enums.RuleType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedOutputStream;
-import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 
 @Slf4j
 @Component
-@EnableAsync
 public class RemoteRuleHandler extends RuleHandler {
 
-    private Charset charset = Charset.defaultCharset();
-
-    @Autowired
     public RemoteRuleHandler(FilterConfig config, BitSetBloomFilter filter) {
         super(config, filter);
     }
 
     @Override
-    InputStream getContentStream(String ruleUrl) {
+    RuleSource open(String ruleUrl) {
         try {
             HttpResponse response = HttpRequest.get(ruleUrl)
                     .setFollowRedirects(true)
                     .timeout(20000)
                     .execute();
             if (response.isOk()) {
-                this.charset = Charset.forName(response.charset());
-                return response.bodyStream();
-            } else throw new RuntimeException("response status: " + response.getStatus());
+                return new RuleSource(response.bodyStream(), Charset.forName(response.charset()));
+            }
+            log.error(" 规则<{}> 获取失败 => response status: {}", ruleUrl, response.getStatus());
         } catch (Exception e) {
             log.error(" 规则<{}> 获取失败 => {}", ruleUrl, e.getMessage());
             log.debug(ExceptionUtil.stacktraceToString(e));
         }
-        return IoUtil.toStream(new byte[0]);
-    }
-
-    @Override
-    Charset getCharset() {
-        return charset;
+        return new RuleSource(IoUtil.toStream(new byte[0]), StandardCharsets.UTF_8);
     }
 
     @Override

@@ -35,7 +35,7 @@ public class OutputConfig {
     private String fileHeader;
 
     public void setFiles(Map<String, Set<RuleType>> files) {
-        if (files.isEmpty() || files.values().stream().allMatch(Set::isEmpty)) {
+        if (files == null || files.isEmpty() || files.values().stream().allMatch(Set::isEmpty)) {
             this.files = Collections.emptyMap();
             return;
         }
@@ -43,6 +43,6 @@ public class OutputConfig {
     }
 
     public boolean isEmpty() {
-        return files.isEmpty() || files.values().stream().allMatch(Set::isEmpty);
+        return files == null || files.isEmpty() || files.values().stream().allMatch(Set::isEmpty);
     }
 }

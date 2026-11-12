@@ -3,7 +3,6 @@ package org.fordes.adg.rule.enums;
 import cn.hutool.core.util.StrUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -54,18 +53,15 @@ public enum RuleType {
     /**
      * 识别标识，包含即通过
      */
-    @NonNull
     private final Collection<String> identify;
 
     /**
      * 正向 正则，匹配一个即为通过
      */
-    @NonNull
     private final Collection<String> match;
 
     /**
      * 排除 正则，全部不匹配即为通过
      */
-    @NonNull
     private final Collection<String> exclude;
 }

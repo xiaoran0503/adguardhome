@@ -15,7 +15,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Component
 public class ExecutorConfig {
 
-    private final static int N = Runtime.getRuntime().availableProcessors();
+    private static final int N = Runtime.getRuntime().availableProcessors();
 
     @Primary
     @Bean("ruleExecutor")
@@ -29,7 +29,6 @@ public class ExecutorConfig {
         taskExecutor.setAwaitTerminationSeconds(60);
         taskExecutor.setKeepAliveSeconds(10);
         taskExecutor.setAllowCoreThreadTimeOut(true);
-        taskExecutor.initialize();
         return taskExecutor;
     }
 }

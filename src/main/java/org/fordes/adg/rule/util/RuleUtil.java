@@ -20,36 +20,36 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static cn.hutool.core.thread.ThreadUtil.sleep;
-
 /**
  * @author fordes123 on 2022/9/19
  */
 @Slf4j
 public class RuleUtil {
 
-    static final Lock lock = new ReentrantLock();
+    private static final Lock lock = new ReentrantLock();
+
+    /**
+     * hutool BitSetBloomFilter 允许的最大哈希函数数
+     */
+    private static final int MAX_HASH_FUNCTIONS = 8;
 
     public static void writeToStream(BufferedOutputStream out,
                                      Collection<String> content, RuleConfig.Prop prop, Charset charset) {
-        if (lock.tryLock()) {
-            try {
-                String tag = prop.getName().equals(prop.getPath()) ?
-                        prop.getName() : StrUtil.format("{} ({})", prop.getName(), prop.getPath());
-                out.write(StrUtil.format(Constants.PART_TEMPLATE, tag).getBytes(charset));
-                for (String line : content) {
-                    out.write(line.getBytes(charset));
-                    out.write(StrUtil.LF.getBytes(charset));
-                }
-                out.flush();
-            } catch (IOException e) {
-                log.error("写入文件失败 => {}", e.getMessage());
-            } finally {
-                lock.unlock();
+        // 多线程会并发写同一批输出流，这里必须串行；直接阻塞等待，避免原先 tryLock 失败后 sleep 递归重试
+        lock.lock();
+        try {
+            String tag = prop.getName().equals(prop.getPath()) ?
+                    prop.getName() : StrUtil.format("{} ({})", prop.getName(), prop.getPath());
+            out.write(StrUtil.format(Constants.PART_TEMPLATE, tag).getBytes(charset));
+            for (String line : content) {
+                out.write(line.getBytes(charset));
+                out.write(StrUtil.LF.getBytes(charset));
             }
-        } else {
-            sleep(1000);
-            writeToStream(out, content, prop, charset);
+            out.flush();
+        } catch (IOException e) {
+            log.error("写入文件失败 => {}", e.getMessage());
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -175,7 +175,10 @@ public class RuleUtil {
      */
     public static int optimalNumOfHashFunctions(long n, long m) {
         // (m / n) * log(2), but avoid truncation due to division!
-        return Math.max(1, (int) Math.round((double) m / n * Math.log(2)));
+        // hutool 5.8.4x 起 BitSetBloomFilter 限定 hashFunctionNumber ∈ [1,8]；
+        // 按 application.yml 的 2000000 / 0.001 理论值为 10，需钳到上限，此时实际误判率仍与配置值同量级
+        int k = (int) Math.round((double) m / n * Math.log(2));
+        return Math.min(MAX_HASH_FUNCTIONS, Math.max(1, k));
     }
 
 }
