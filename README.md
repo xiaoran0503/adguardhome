@@ -45,11 +45,11 @@
 
 <!-- RULES:BEGIN -->
 ```
-更新时间: 2026-11-13 10:48:05 （北京时间）
+更新时间: 2026-11-13 11:13:55 （北京时间）
 
-拦截规则数量: 219288
-白名单规则数量: 1031
-保护域名数量: 21
+拦截规则数量: 288175
+白名单规则数量: 190
+保护域名数量: 24
 ```
 
 <details open>
@@ -83,8 +83,9 @@
 | AdGuard DNS filter | https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt |
 | anti-AD 中文规则 | https://anti-ad.net/easylist.txt |
 | OISD small | https://small.oisd.nl/ |
+| HaGeZi Multi PRO mini | https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.mini.txt |
 | AWAvenue 秋风广告规则 | https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt |
-| 本地私有规则 | `rule/local-rule.txt` |
+| 本地私有白名单 | `rule/local-rule.txt` |
 <!-- UPSTREAM:END -->
 
 > 以上区块同样由程序自动重写，与 `application.yml` 中的规则源配置保持一致。
