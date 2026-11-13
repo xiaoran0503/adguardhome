@@ -1,0 +1,44 @@
+# 保护域名（安全白名单）
+#
+# 作用：合并阶段，凡是指向以下域名（含其所有子域）的“拦截规则”一律丢弃；
+#       同时把这些域名以 @@ 例外（allowlist）的形式写进 all.txt / dns.txt 末尾，
+#       这样即使客户端另外还开了 AdGuard DNS filter 等过滤器，也不会把核心业务挡掉。
+#
+# 写法：一行一个域名，不带 || ^ 等符号；写 snssdk.com 即保护 snssdk.com 及其全部子域。
+# 以 # 开头为注释。改完提交，下一次 CI 编译即生效。
+
+# ---- 字节跳动 / 抖音 / 今日头条 ----
+# i.snssdk.com、is.snssdk.com 是抖音评论与商城的业务网关，aweme.snssdk.com 是视频接口；
+# mon.snssdk.com、apmplus.volces.com 等监控上报被拦会让 SDK 反复重试，同样表现为“加载缓慢”。
+snssdk.com
+zijieapi.com
+amemv.com
+volces.com
+douyinpic.com
+douyinvod.com
+
+# ---- 小红书 ----
+xiaohongshu.com
+xhscdn.com
+
+# ---- 淘宝 / 天猫：UT 埋点接口被拦会拖慢商品详情页 ----
+# 注意这里只保护这两个业务接口，淘宝的广告域（adashx、tanx 等）仍然照拦
+h-adashx.ut.taobao.com
+h-adashx4bc.ut.taobao.com
+
+# ---- 微信 ----
+weixin.qq.com
+
+# ---- vivo 推送与设备 SDK（拦了会掉推送或反复重连）----
+stsdk.vivo.com.cn
+
+# ---- 系统 / 商店 / 登录核心 ----
+googleapis.com
+gstatic.com
+android.com
+mzstatic.com
+appleid.apple.com
+login.live.com
+login.microsoftonline.com
+microsoftonline.com
+g.live.com

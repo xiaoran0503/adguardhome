@@ -30,6 +30,8 @@
   <span> · </span>
     <a href="#b">上游列表</a>
   <span> · </span>
+    <a href="#f">误伤防护</a>
+  <span> · </span>
     <a href="#c">拦截效果</a>
   <span> · </span>
     <a href="#d">更新日志</a>
@@ -90,6 +92,19 @@
 
 > 以上区块同样由程序自动重写，与 `application.yml` 中的规则源配置保持一致。
 
+<h2 id="f">🛡 误伤防护</h2>
+
+规则合并时会读取 [`src/main/resources/protect-domains.txt`](src/main/resources/protect-domains.txt)：
+
+- 凡是**拦截规则**指向清单内域名（含其子域）的，一律在合并阶段丢弃，不计入规则总量
+- 清单内域名同时以 `@@` 例外（allowlist）写进 `all.txt` / `dns.txt` 末尾，这样即使客户端另外还启用了 AdGuard DNS filter 之类的过滤器，核心业务也不会被挡
+
+默认保护字节跳动（抖音 / 今日头条）、小红书、淘宝 UT 埋点、微信、vivo 推送 SDK，以及 Google / Apple / Microsoft 的登录与商店核心域名。
+
+自定义方式：一行一个域名（写 `snssdk.com` 即保护该域及其全部子域），`#` 开头为注释，提交后下一次 CI 编译即生效。
+
+**为什么需要这一层**：DNS 规则量一大，最容易踩的坑是把 App 的业务 API 当广告拦掉。抖音的评论、商城接口都在 `snssdk.com` 域下，一旦被拦，表现不是「打不开」而是**加载极慢**——客户端在超时重试。这一层用「品牌根域 + 少量业务接口」兜底，宁可少拦几条统计域，也不牺牲可用性。
+
 <h2 id="c">🚫 拦截效果</h2>
 
 [AdBlock Tester](https://adblock-tester.com)
@@ -99,6 +114,27 @@
 [Ad Blocker Test](https://d3ward.github.io/toolz/adblock.html)
 
 <h2 id="d">📝 更新日志</h2>
+
+### 2026-11-13 规则源重构 & 误伤治理
+
+**问题**
+
+- 实际使用中抖音出现「评论、商品页加载缓慢」：合并结果里存在大量指向业务 API 与遥测端点的规则（如 `i.snssdk.com`、`gecko-hl.snssdk.com`、`mon.snssdk.com`、`stsdk.vivo.com.cn`），被拦后 SDK 反复重试，表现为加载慢而非打不开
+
+**规则源重构**
+
+- 移除 6 个源：`5whys AdGuardHome-rules`（单源 37.7 万条，占旧集合 59%）、`217heidai adblockfilters`、`adrules.top`、`GOODBYEADS`、`10007 专属规则`、`Potterli20 加速 Hosts`（这项其实是 GitHub 加速 hosts，不是广告规则，混进来会把域名解析改到第三方 IP）
+- 改为 4 个维护活跃、误伤控制严格的源：**AdGuard DNS filter**（官方 DNS 专用）、**anti-AD**（中文命中率高）、**OISD small**（官方口号即「Block. Don't break.」）、**AWAvenue 秋风广告规则**
+- 合并总量由 63.7 万降到约 21.9 万，去掉了约三分之二的冗余与可疑条目，AdGuard Home 加载更快、内存占用更小
+
+**误伤防护**
+
+- 新增 `src/main/resources/protect-domains.txt` 保护清单：合并阶段丢弃指向受保护域名的拦截规则，并把它们以 `@@` 例外写进 `all.txt` / `dns.txt`
+- 每次运行日志会打印「保护域名丢弃」条数，README 的规则订阅区块新增「保护域名数量」
+
+**配套**
+
+- 规则文件首行改为 `!` 注释，AdGuard Home 不再把文件头算作 1 条无效规则
 
 ### 2026-11-12 技术栈现代化 & README 自动化
 
@@ -146,7 +182,7 @@
 
 <h2 id="e">💬 完善项目</h2>
 
-规则有问题可以在本仓库提交 Issue，或前往上游项目 <a href="https://github.com/8680/GOODBYEADS">GOODBYEADS</a>、<a href="https://github.com/guandasheng/TheBestAdrules">TheBestAdrules</a> 反馈。
+规则有问题可以在本仓库提交 Issue，或前往上游项目 <a href="https://github.com/AdguardTeam/AdguardSDNSFilter">AdGuard DNS filter</a>、<a href="https://github.com/privacy-protection-tools/anti-AD">anti-AD</a>、<a href="https://oisd.nl">OISD</a> 反馈。
 审核之后会加入到规则，如果规则有误杀会尽快处理。
 
 **提交范围**

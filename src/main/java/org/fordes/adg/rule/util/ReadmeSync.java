@@ -97,6 +97,7 @@ public class ReadmeSync {
                 .append(" （北京时间）\n\n");
         sb.append("拦截规则数量: ").append(countRules(outputConfig.getPath(), "all.txt")).append('\n');
         sb.append("白名单规则数量: ").append(countRules(Constants.LOCAL_RULE_SUFFIX, WHITELIST_FILE)).append('\n');
+        sb.append("保护域名数量: ").append(ProtectDomains.entries().size()).append('\n');
         sb.append("```\n\n");
 
         sb.append("<details open>\n<summary>规则列表</summary>\n<ul>\n\n");

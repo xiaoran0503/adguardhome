@@ -7,6 +7,7 @@ import org.fordes.adg.rule.config.OutputConfig;
 import org.fordes.adg.rule.config.RuleConfig;
 import org.fordes.adg.rule.enums.RuleType;
 import org.fordes.adg.rule.handler.RuleHandler;
+import org.fordes.adg.rule.util.ProtectDomains;
 import org.fordes.adg.rule.util.ReadmeSync;
 import org.fordes.adg.rule.util.RuleUtil;
 import org.springframework.boot.ApplicationRunner;
@@ -16,6 +17,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +67,9 @@ public class AdgRuleApplication {
             CompletableFuture<?>[] futures = tasks.toArray(new CompletableFuture[0]);
             CompletableFuture.allOf(futures).join();
 
+            //把保护域名写成 @@ 例外，客户端另外启用别的过滤器时也不会误伤核心业务
+            appendProtect(fileStream);
+
             //关闭输出流，避免句柄泄漏
             fileStream.values().forEach(stream -> IoUtil.close(stream));
 
@@ -71,5 +77,30 @@ public class AdgRuleApplication {
             ReadmeSync.sync(outputConfig, ruleConfig);
             log.info("规则合并完成，共处理 {} 个规则源", tasks.size());
         };
+    }
+
+    /**
+     * 把保护域名以 @@ 例外追加到 AdGuard Home 可用的输出文件末尾。
+     * <p>只写 all.txt / dns.txt：domain.txt 这类纯域名列表无法表达例外，写进去会破坏格式。
+     */
+    private static void appendProtect(Map<String, BufferedOutputStream> fileStream) {
+        Set<String> domains = ProtectDomains.entries();
+        if (domains.isEmpty()) {
+            return;
+        }
+        for (String fileName : List.of("all.txt", "dns.txt")) {
+            BufferedOutputStream out = fileStream.get(fileName);
+            if (out == null) {
+                continue;
+            }
+            try {
+                StringBuilder sb = new StringBuilder("! \uD83D\uDC47Protect domains (allowlist)\n");
+                domains.forEach(domain -> sb.append("@@||").append(domain).append("^\n"));
+                out.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+                out.flush();
+            } catch (IOException e) {
+                log.error("写入保护域名例外失败 => {}", e.getMessage());
+            }
+        }
     }
 }

@@ -19,23 +19,17 @@ application:
   rule:
 
     # 仅支持 http/https，不限定响应内容格式
+    # 只保留维护活跃、误伤控制严格的源；聚合类/个人维护的二手合并规则集已移除，
+    # 它们动辄几十万条且把 App 业务 API 当广告，是"拦截正常但加载变慢"的主要来源
     remote:
-      - name: 'GOODBYEADS DNS 规则' #规则名称
-        path: 'https://raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/dns.txt' #规则地址
-      - name: 'adrules.top DNS 规则' #规则名称
-        path: 'https://adrules.top/dns.txt' #规则地址
-      - name: 'anti-ad easylist' #规则名称
+      - name: 'AdGuard DNS filter' #规则名称
+        path: 'https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt' #规则地址
+      - name: 'anti-AD 中文规则' #规则名称
         path: 'https://anti-ad.net/easylist.txt' #规则地址
-      - name: 'Potterli20 加速 Hosts' #规则名称
-        path: 'https://github.com/Potterli20/file/releases/download/github-hosts/Accelerate-Hosts.txt' #规则地址
+      - name: 'OISD small' #规则名称
+        path: 'https://small.oisd.nl/' #规则地址
       - name: 'AWAvenue 秋风广告规则' #规则名称
         path: 'https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt' #规则地址
-      - name: '10007 专属规则' #规则名称
-        path: 'https://raw.githubusercontent.com/lingeringsound/10007_auto/master/reward' #规则地址
-      - name: '5whys AdGuardHome-rules' #规则名称
-        path: 'https://raw.githubusercontent.com/5whys-adblock/AdGuardHome-rules/main/rules/output_full.txt' #规则地址
-      - name: '217heidai adblockfilters' #规则名称
-        path: 'https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockdns.txt' #规则地址
     #本地规则请将文件放置到项目路径rule目录中
     local:
       - name: '本地私有规则'

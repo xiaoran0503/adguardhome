@@ -14,6 +14,7 @@ import org.fordes.adg.rule.config.FilterConfig;
 import org.fordes.adg.rule.config.RuleConfig;
 import org.fordes.adg.rule.enums.HandleType;
 import org.fordes.adg.rule.enums.RuleType;
+import org.fordes.adg.rule.util.ProtectDomains;
 import org.fordes.adg.rule.util.RuleUtil;
 import org.fordes.adg.rule.util.SpringUtil;
 
@@ -53,6 +54,7 @@ public abstract class RuleHandler {
         TimeInterval interval = DateUtil.timer();
         AtomicInteger invalid = new AtomicInteger();
         AtomicInteger repeat = new AtomicInteger();
+        AtomicInteger protect = new AtomicInteger();
 
         Map<RuleType, Set<String>> dataMap = MapUtil.newHashMap();
         final RuleSource source = openOrEmpty(prop);
@@ -64,6 +66,9 @@ public abstract class RuleHandler {
                     invalid.incrementAndGet();
                 } else if (bloomFilter.contains(content)) {
                     repeat.incrementAndGet();
+                } else if (ProtectDomains.blocksProtected(line, content)) {
+                    //命中保护清单：属于核心业务域名，宁可少拦一条，也不误伤
+                    protect.incrementAndGet();
                 } else {
                     bloomFilter.add(content);
                     if (content.length() < config.getWarnLimit()) {
@@ -82,8 +87,8 @@ public abstract class RuleHandler {
             log.error(ExceptionUtil.stacktraceToString(e));
         } finally {
             flush(dataMap, typeStreamMap, prop, source.charset());
-            log.info("规则<{}> 耗时 => {} ms 无效数 => {} 重复数 => {}",
-                    prop.getName(), interval.intervalMs(), invalid.get(), repeat.get());
+            log.info("规则<{}> 耗时 => {} ms 无效数 => {} 重复数 => {} 保护域名丢弃 => {}",
+                    prop.getName(), interval.intervalMs(), invalid.get(), repeat.get(), protect.get());
         }
     }
 
