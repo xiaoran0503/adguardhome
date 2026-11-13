@@ -45,10 +45,11 @@
 
 <!-- RULES:BEGIN -->
 ```
-更新时间: 2026-11-13 06:10:48 （北京时间）
+更新时间: 2026-11-13 10:44:40 （北京时间）
 
-拦截规则数量: 635160
+拦截规则数量: 219298
 白名单规则数量: 1031
+保护域名数量: 21
 ```
 
 <details open>
@@ -79,14 +80,10 @@
 <!-- UPSTREAM:BEGIN -->
 | 规则源 | 地址 |
 | --- | --- |
-| GOODBYEADS DNS 规则 | https://raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/dns.txt |
-| adrules.top DNS 规则 | https://adrules.top/dns.txt |
-| anti-ad easylist | https://anti-ad.net/easylist.txt |
-| Potterli20 加速 Hosts | https://github.com/Potterli20/file/releases/download/github-hosts/Accelerate-Hosts.txt |
+| AdGuard DNS filter | https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt |
+| anti-AD 中文规则 | https://anti-ad.net/easylist.txt |
+| OISD small | https://small.oisd.nl/ |
 | AWAvenue 秋风广告规则 | https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt |
-| 10007 专属规则 | https://raw.githubusercontent.com/lingeringsound/10007_auto/master/reward |
-| 5whys AdGuardHome-rules | https://raw.githubusercontent.com/5whys-adblock/AdGuardHome-rules/main/rules/output_full.txt |
-| 217heidai adblockfilters | https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockdns.txt |
 | 本地私有规则 | `rule/local-rule.txt` |
 <!-- UPSTREAM:END -->
 
