@@ -1,0 +1,64 @@
+! ============================================================
+! 本地私有白名单（误伤放行）
+!
+! 用途：广告和核心业务共用同一批域名的场景，宁可少拦几条，也不要让 App 转圈重试。
+! 规则写法：@@||域名^           放行整个域名及其子域
+!           @@||子域.域名^      只放行这个子子域（更精细，推荐）
+!
+! 生效方式：本文件既是规则源（例外行会写进 all.txt / dns.txt），
+!           也会在合并阶段直接丢弃指向这些域名的拦截规则，因此输出里不会出现
+!           「一边拦一边放」的自相矛盾条目。
+!
+! 维护建议：AGH 查询日志里看到某域名被拦且影响使用 -> 判断它是否属于业务主链路
+!           -> 在这里加一行 @@||域名^ -> 等下次 CI 自动生效，无需回退整份规则。
+! ============================================================
+
+! ---------- 微信：图片/语音/长连接/登录链路（拦了会白图、发不出语音） ----------
+@@||wxs.qq.com^
+@@||long.weixin.qq.com^
+@@||minorshort.weixin.qq.com^
+@@||dns.weixin.qq.com.cn^
+@@||support.weixin.qq.com^
+@@||apd-pcdnwxlogin.teg.tencent-cloud.net^
+@@||apd-pcdnwxnat.teg.tencent-cloud.net^
+@@||apd-pcdnwxstat.teg.tencent-cloud.net^
+
+! ---------- 支付与电商主 API 网关（拦了会无法下单/无法支付） ----------
+@@||wxpay.tenpay.com^
+@@||mtop.taobao.com^
+@@||h5api.m.taobao.com^
+@@||gw.taobao.com^
+@@||api.m.jd.com^
+@@||api.jd.com^
+@@||mobilegw.alipay.com^
+@@||api.pinduoduo.com^
+@@||api.yangkeduo.com^
+
+! ---------- 内容平台主 API（拦了会一直转圈） ----------
+@@||api.bilibili.com^
+@@||api.live.bilibili.com^
+@@||api.kuaishou.com^
+@@||api.weibo.cn^
+@@||api.zhihu.com^
+
+! ---------- 系统/输入法/一键登录等客户端基础服务 ----------
+@@||shouji.sogou.com^
+@@||ws-keyboard.shouji.sogou.com^
+@@||mobileservice.cn^
+@@||update.pan.baidu.com^
+@@||api.miwifi.com^
+@@||qappcenterv6.3g.qq.com^
+@@||game.eve.mdt.qq.com^
+@@||edge.microsoft.com^
+
+! ---------- 应用商店与地图（更新/下载/导航走这些域） ----------
+@@||play.googleapis.com^
+@@||iosapps.itunes.apple.com^
+@@||amp-api-edge.apps.apple.com^
+@@||restapi.amap.com^
+@@||api.amap.com^
+@@||api.meituan.com^
+
+! ---------- 字节遥测根域（纯上报，不拦可避免 App 反复重试导致的启动/滑动卡顿） ----------
+@@||ctobsnssdk.com^
+@@||isnssdk.com^

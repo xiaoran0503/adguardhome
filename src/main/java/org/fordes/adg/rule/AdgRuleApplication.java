@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.fordes.adg.rule.config.OutputConfig;
 import org.fordes.adg.rule.config.RuleConfig;
+import org.fordes.adg.rule.constant.Constants;
 import org.fordes.adg.rule.enums.RuleType;
 import org.fordes.adg.rule.handler.RuleHandler;
+import org.fordes.adg.rule.util.AllowList;
 import org.fordes.adg.rule.util.ProtectDomains;
 import org.fordes.adg.rule.util.ReadmeSync;
 import org.fordes.adg.rule.util.RuleUtil;
@@ -50,6 +52,9 @@ public class AdgRuleApplication {
                 log.warn("未配置规则或输出文件");
                 return;
             }
+            //载入本地白名单（rule/local-rule.txt、rule/private.txt），合并阶段直接丢掉对应拦截规则
+            AllowList.load(Constants.LOCAL_RULE_SUFFIX, "local-rule.txt", "private.txt");
+
             //建立文件
             Map<String, BufferedOutputStream> fileStream = outputConfig.getFiles().keySet().stream()
                     .map(fileName -> Map.entry(fileName,

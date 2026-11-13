@@ -16,6 +16,14 @@ import java.util.List;
 public enum RuleType {
 
     /**
+     * 例外（白名单）规则，形如 @@||xxx.com^
+     * <p>AdGuard Home 只认这一种放行写法，且必须出现在 all.txt / dns.txt 里才有意义；
+     * 单独成类是为了别把它混进 regex.txt / domain.txt / modify.txt，污染纯列表文件。
+     */
+    WHITELIST("例外规则", true, List.of("@@"),
+            List.of("^@@\\|\\|[^*/]+\\^?$"), Collections.emptyList()),
+
+    /**
      * 域名规则，形如 xxx.com、xx.oo.com
      */
     DOMAIN("域名规则", true, List.of(StrUtil.DOT),
@@ -37,7 +45,7 @@ public enum RuleType {
      * 修饰规则，不被adGuardHome支持
      */
     MODIFY("修饰规则", false, Collections.emptyList(),
-            Collections.emptyList(), Collections.emptyList());
+            Collections.emptyList(), List.of("^@@"));
 
 
     /**

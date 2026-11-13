@@ -44,7 +44,7 @@ public class ReadmeSync {
 
     private static final String PROXY_PREFIX = "https://gh-proxy.com/";
 
-    private static final String WHITELIST_FILE = "private.txt";
+    private static final List<String> WHITELIST_FILES = List.of("local-rule.txt", "private.txt");
 
     private static final Map<String, String> FILE_LABEL = Map.of(
             "all.txt", "全部规则",
@@ -96,7 +96,7 @@ public class ReadmeSync {
                 .append(ZonedDateTime.now(ZoneId.of("Asia/Shanghai")).format(TIME_FORMAT))
                 .append(" （北京时间）\n\n");
         sb.append("拦截规则数量: ").append(countRules(outputConfig.getPath(), "all.txt")).append('\n');
-        sb.append("白名单规则数量: ").append(countRules(Constants.LOCAL_RULE_SUFFIX, WHITELIST_FILE)).append('\n');
+        sb.append("白名单规则数量: ").append(countExceptions()).append('\n');
         sb.append("保护域名数量: ").append(ProtectDomains.entries().size()).append('\n');
         sb.append("```\n\n");
 
@@ -132,6 +132,25 @@ public class ReadmeSync {
      */
     private static String relative(String path) {
         return StrUtil.removePrefix(path, Constants.ROOT_PATH + File.separator);
+    }
+
+    /**
+     * 统计白名单条目数。
+     * <p>只数 {@code @@} 例外：{@code private.txt} 里还夹带了一批历史拦截规则，
+     * 那些不算白名单，数进来只会让这个数字失真。
+     */
+    private static long countExceptions() {
+        long total = 0;
+        for (String fileName : WHITELIST_FILES) {
+            File file = new File(Constants.LOCAL_RULE_SUFFIX, fileName);
+            if (!FileUtil.exist(file)) {
+                continue;
+            }
+            total += FileUtil.readLines(file, StandardCharsets.UTF_8).stream()
+                    .filter(line -> line.trim().startsWith("@@"))
+                    .count();
+        }
+        return total;
     }
 
     /**

@@ -28,11 +28,14 @@ application:
         path: 'https://anti-ad.net/easylist.txt' #规则地址
       - name: 'OISD small' #规则名称
         path: 'https://small.oisd.nl/' #规则地址
+      - name: 'HaGeZi Multi PRO mini' #规则名称
+        #作者自述：只保留出现在 Top 1M/10M 榜单上的 Pro 域名，体积小、限制少，是他推荐的默认档位
+        path: 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.mini.txt' #规则地址
       - name: 'AWAvenue 秋风广告规则' #规则名称
         path: 'https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt' #规则地址
     #本地规则请将文件放置到项目路径rule目录中
     local:
-      - name: '本地私有规则'
+      - name: '本地私有白名单'
         path: 'local-rule.txt'
   output:
     file_header: |  #输出文件头, 占位符${name}将被替换为文件名，如all.txt,  ${date} 将被替换为当前日期
@@ -43,11 +46,13 @@ application:
     path: rule   #规则文件输出路径，相对路径默认从 项目目录开始
     files:
       all.txt: #输出文件名
+        - WHITELIST #例外规则，@@ 开头的放行规则，AGH 支持
         - DOMAIN  #域名规则，仅完整域名
         - REGEX   #正则规则，包含正则的域名规则，AdGH支持
         - MODIFY  #修饰规则，添加了一些修饰符号的规则，AdG支持
         - HOSTS   #Hosts规则
       dns.txt:
+        - WHITELIST
         - DOMAIN
         - REGEX
         - HOSTS

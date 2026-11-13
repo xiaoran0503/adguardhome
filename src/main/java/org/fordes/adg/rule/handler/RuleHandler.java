@@ -14,6 +14,7 @@ import org.fordes.adg.rule.config.FilterConfig;
 import org.fordes.adg.rule.config.RuleConfig;
 import org.fordes.adg.rule.enums.HandleType;
 import org.fordes.adg.rule.enums.RuleType;
+import org.fordes.adg.rule.util.AllowList;
 import org.fordes.adg.rule.util.ProtectDomains;
 import org.fordes.adg.rule.util.RuleUtil;
 import org.fordes.adg.rule.util.SpringUtil;
@@ -55,6 +56,7 @@ public abstract class RuleHandler {
         AtomicInteger invalid = new AtomicInteger();
         AtomicInteger repeat = new AtomicInteger();
         AtomicInteger protect = new AtomicInteger();
+        AtomicInteger whitelist = new AtomicInteger();
 
         Map<RuleType, Set<String>> dataMap = MapUtil.newHashMap();
         final RuleSource source = openOrEmpty(prop);
@@ -69,13 +71,22 @@ public abstract class RuleHandler {
                 } else if (ProtectDomains.blocksProtected(line, content)) {
                     //命中保护清单：属于核心业务域名，宁可少拦一条，也不误伤
                     protect.incrementAndGet();
+                } else if (AllowList.isWhitelisted(line, content)) {
+                    //命中本地白名单：用户明确要放行的域名，同样不拦
+                    whitelist.incrementAndGet();
+                } else if (isException(line, content)) {
+                    //例外规则单独成类：clearRule 会把 @@|| 前缀剥掉，只能按原始行判断，
+                    //否则它会以「域名」的身份混进 domain.txt，让纯域名列表不可用
+                    RuleUtil.safePut(dataMap, RuleType.WHITELIST, line);
                 } else {
                     bloomFilter.add(content);
                     if (content.length() < config.getWarnLimit()) {
                         log.warn("发现短规则: {} -> {}，来源: {}", line, content, prop.getName());
                     }
 
-                    Arrays.stream(RuleType.values()).filter(ruleType -> RuleUtil.validRule(content, ruleType))
+                    Arrays.stream(RuleType.values())
+                            .filter(ruleType -> ruleType != RuleType.WHITELIST)
+                            .filter(ruleType -> RuleUtil.validRule(content, ruleType))
                             .findFirst().ifPresent(ruleType -> RuleUtil.safePut(dataMap, ruleType, line));
 
                     if (dataMap.values().stream().mapToInt(Set::size).sum() > config.getBatchSize()) {
@@ -87,9 +98,21 @@ public abstract class RuleHandler {
             log.error(ExceptionUtil.stacktraceToString(e));
         } finally {
             flush(dataMap, typeStreamMap, prop, source.charset());
-            log.info("规则<{}> 耗时 => {} ms 无效数 => {} 重复数 => {} 保护域名丢弃 => {}",
-                    prop.getName(), interval.intervalMs(), invalid.get(), repeat.get(), protect.get());
+            log.info("规则<{}> 耗时 => {} ms 无效数 => {} 重复数 => {} 保护域名丢弃 => {} 白名单丢弃 => {}",
+                    prop.getName(), interval.intervalMs(), invalid.get(), repeat.get(), protect.get(), whitelist.get());
         }
+    }
+
+    /**
+     * 是否是 AdGuard Home 能用的例外规则（{@code @@||域名^}）
+     * <p>{@code clearRule} 已把 {@code @@||} 与 {@code $important} 剥掉，这里拿到的是纯域名，
+     * 只要不带路径和通配符，AGH 就能识别为放行规则。
+     */
+    private static boolean isException(String line, String content) {
+        if (line == null || !line.trim().startsWith("@@")) {
+            return false;
+        }
+        return content.indexOf('/') < 0 && content.indexOf('*') < 0 && content.indexOf('.') > 0;
     }
 
     /**

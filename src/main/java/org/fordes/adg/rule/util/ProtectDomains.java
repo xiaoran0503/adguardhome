@@ -51,9 +51,25 @@ public class ProtectDomains {
         if (raw.startsWith("@@")) {
             return false;
         }
+        return matchesAny(DOMAINS, content);
+    }
+
+    /**
+     * 规则内容是否指向给定域名清单中的任意一个（主机名边界匹配）
+     * <p>保护清单与本地白名单共用这套判断：既不漏正则/通配写法，又不会把
+     * {@code ctobsnssdk.com} 这类只是共享后缀字符串的其它根域误判进来。
+     *
+     * @param domains 域名清单（小写）
+     * @param content 规则内容
+     * @return true 表示命中
+     */
+    public static boolean matchesAny(Set<String> domains, String content) {
+        if (domains == null || domains.isEmpty() || content == null || content.isEmpty()) {
+            return false;
+        }
         //正则里的 \. 会拆开域名，去掉反斜杠后再比
         String text = content.toLowerCase(Locale.ROOT).replace("\\", "");
-        for (String domain : DOMAINS) {
+        for (String domain : domains) {
             int from = 0;
             while (true) {
                 int idx = text.indexOf(domain, from);

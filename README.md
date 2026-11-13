@@ -91,16 +91,26 @@
 
 <h2 id="f">🛡 误伤防护</h2>
 
-规则合并时会读取 [`src/main/resources/protect-domains.txt`](src/main/resources/protect-domains.txt)：
+误伤治理分两层，都在合并阶段自动生效：
+
+**一、保护域名（项目维护）** [`src/main/resources/protect-domains.txt`](src/main/resources/protect-domains.txt)
 
 - 凡是**拦截规则**指向清单内域名（含其子域）的，一律在合并阶段丢弃，不计入规则总量
 - 清单内域名同时以 `@@` 例外（allowlist）写进 `all.txt` / `dns.txt` 末尾，这样即使客户端另外还启用了 AdGuard DNS filter 之类的过滤器，核心业务也不会被挡
 
 默认保护字节跳动（抖音 / 今日头条）、小红书、淘宝 UT 埋点、微信、vivo 推送 SDK，以及 Google / Apple / Microsoft 的登录与商店核心域名。
 
+**二、本地白名单（自行维护）** [`rule/local-rule.txt`](rule/local-rule.txt) 与 [`rule/private.txt`](rule/private.txt)
+
+- 用 `@@||域名^` 写放行，合并时解析这些例外：指向它们的拦截规则同样被丢弃，例外行本身写进 `all.txt` / `dns.txt`
+- 专门对付「广告和业务共用同一批域名」的场景：抖音、微信、淘宝这类 App 的埋点、广告位和业务 API 常常同域，整域拦掉就会出现白图、发不出语音、支付失败
+- 已预置微信图片与登录链路、搜狗输入法、一键登录、各大电商主 API 网关、应用商店等，按需增删
+
 自定义方式：一行一个域名（写 `snssdk.com` 即保护该域及其全部子域），`#` 开头为注释，提交后下一次 CI 编译即生效。
 
 **为什么需要这一层**：DNS 规则量一大，最容易踩的坑是把 App 的业务 API 当广告拦掉。抖音的评论、商城接口都在 `snssdk.com` 域下，一旦被拦，表现不是「打不开」而是**加载极慢**——客户端在超时重试。这一层用「品牌根域 + 少量业务接口」兜底，宁可少拦几条统计域，也不牺牲可用性。
+
+**遇到误伤怎么处理**：在 AdGuard Home 的查询日志里找到被拦的域名（拦截列有值），确认它属于业务主链路后，在 `rule/local-rule.txt` 加一行 `@@||该域名^`，提交等下一次 CI 即可，不需要回退整份规则。
 
 <h2 id="c">🚫 拦截效果</h2>
 
@@ -111,6 +121,22 @@
 [Ad Blocker Test](https://d3ward.github.io/toolz/adblock.html)
 
 <h2 id="d">📝 更新日志</h2>
+
+### 2026-11-13 白名单接入 & 上游补强
+
+**上游**
+
+- 新增 **HaGeZi Multi PRO mini**（`hagezi/dns-blocklists`）：作者自述只保留出现在 Top 1M/10M 榜单上的 Pro 域名，体积小、限制少，是他推荐的默认档位；补上了 AdGuard DNS filter + OISD + anti-AD 之外约 7 万个域名
+- 参考同行的取舍：`217heidai/adblockfilters` 那类聚合项目的目录里，值得借鉴的不是它的合并结果，而是它**剔除**了什么——它明确弃用 anti-AD 的 `adguard.txt` 与 yhosts（误杀记录见 `Mosney/anti-anti-AD`），也弃用了 1Hosts Lite、Hblock 这类「误杀较多」的列表
+- anti-AD 保留：中文命中率仍是它最强，但只取它的 `easylist.txt`，并按下面的白名单机制兜住误伤
+
+**白名单接入（本轮重点）**
+
+- `@@` 例外提升为独立规则类型 `WHITELIST`：此前它会被当成 REGEX/MODIFY 写进 `regex.txt`、`modify.txt`，导致 `dns.txt` 里的例外残缺、`$important` 结尾的例外根本进不了 `dns.txt`；现在例外只写 `all.txt` / `dns.txt`，纯列表文件保持干净
+- 新增 `rule/local-rule.txt`（本地私有白名单）：预置微信图片与登录链路、搜狗输入法、一键登录、淘宝/京东/支付宝/拼多多/B站/快手/美团/高德主 API 网关、Google Play 与 App Store 等业务域名
+- 首次接入仓库里原有的 `rule/private.txt`（1031 条）：它一直存在但**从未参与合并**，README 里「白名单规则数量」统计的是它，实际却不起作用；现在它与 `local-rule.txt` 一并被解析
+- 新增 `AllowList`：合并阶段把指向白名单域名的拦截规则直接丢弃，输出里不再出现「一边拦一边放」的自相矛盾条目，日志新增「白名单丢弃 => N」
+- 保护清单补充 `douyin.com`、`iesdouyin.com`
 
 ### 2026-11-13 规则源重构 & 误伤治理
 
@@ -179,7 +205,7 @@
 
 <h2 id="e">💬 完善项目</h2>
 
-规则有问题可以在本仓库提交 Issue，或前往上游项目 <a href="https://github.com/AdguardTeam/AdguardSDNSFilter">AdGuard DNS filter</a>、<a href="https://github.com/privacy-protection-tools/anti-AD">anti-AD</a>、<a href="https://oisd.nl">OISD</a> 反馈。
+规则有问题可以在本仓库提交 Issue，或前往上游项目 <a href="https://github.com/AdguardTeam/AdguardSDNSFilter">AdGuard DNS filter</a>、<a href="https://github.com/privacy-protection-tools/anti-AD">anti-AD</a>、<a href="https://oisd.nl">OISD</a>、<a href="https://github.com/hagezi/dns-blocklists">HaGeZi DNS blocklists</a> 反馈。
 审核之后会加入到规则，如果规则有误杀会尽快处理。
 
 **提交范围**
