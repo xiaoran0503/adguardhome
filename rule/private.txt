@@ -16,7 +16,6 @@
 @@||widget.mibbit.com^$important
 @@||wgo.mmstat.com^$important
 @@||weather-analytics-events.apple.com^
-@@||uc.cn^$important
 @@||tracker.ai.xiaomi.com^
 @@||tmead.y.qq.com^
 @@||tc.qq.com^
@@ -39,7 +38,6 @@
 @@||s.click.tmall.com^$important
 @@||s.click.taobao.com^$important
 @@||resstatic.servicewechat.com^
-@@||quark.cn^$important
 @@||qh.qlogo.cn^
 @@||puui.qpic.cn^$important
 @@||puui.qpic.cn^
@@ -101,7 +99,6 @@
 @@||fp-it.fengkongcloud.com^
 @@||fonts.gstatic.com^$important
 @@||emoji.qpic.cn^
-@@||ele.me^
 @@||edge.activity.windows.com^$important
 @@||eclick.baidu.com^$important
 @@||e.baidu.com^$important
@@ -138,7 +135,6 @@
 @@||aweme.snssdk.com^$important
 @@||ar.hao123.com^$important
 @@||appsupport.qq.com^$important
-@@||app-monitor.ele.me^$important
 @@||api.sec.miui.com^$important
 @@||amp-api-edge.apps.apple.com^$important
 @@||ali-stats.jpush.cn^

@@ -59,6 +59,9 @@
 @@||api.amap.com^
 @@||api.meituan.com^
 
-! ---------- 字节遥测根域（纯上报，不拦可避免 App 反复重试导致的启动/滑动卡顿） ----------
-@@||ctobsnssdk.com^
-@@||isnssdk.com^
+! ---------- Android/Google 登录与账号 API（核心源目前没拦，留作保险） ----------
+@@||www.googleapis.com^
+@@||oauth2.googleapis.com^
+
+! 说明：字节的埋点根域（snssdk / zijieapi / amemv / volces / ctobsnssdk / isnssdk）不做保护，
+! 核心源里被拦的 29 条 snssdk 规则全是 log/mon/applog/mssdk 这类上报子域，属于该拦的范围。

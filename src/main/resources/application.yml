@@ -19,18 +19,14 @@ application:
   rule:
 
     # 仅支持 http/https，不限定响应内容格式
-    # 只保留维护活跃、误伤控制严格的源；聚合类/个人维护的二手合并规则集已移除，
-    # 它们动辄几十万条且把 App 业务 API 当广告，是"拦截正常但加载变慢"的主要来源
+    # 核心源用 217heidai/adblockfilters 的成品 DNS 列表：它已经把 AdGuard DNS filter、OISD、
+    # HaGeZi PRO mini、EasyList、CJX、jiekouAD 等合并去重并做过黑名单剔除/父域收敛，
+    # 相当于替我们完成了「多源交叉验证」这一步；再叠 anti-AD 补中文命中，AWAvenue 补国内广告位。
     remote:
-      - name: 'AdGuard DNS filter' #规则名称
-        path: 'https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt' #规则地址
+      - name: '217heidai adblockfilters DNS' #规则名称
+        path: 'https://github.com/217heidai/adblockfilters/releases/download/rule/adblockdns.txt' #规则地址
       - name: 'anti-AD 中文规则' #规则名称
-        path: 'https://anti-ad.net/easylist.txt' #规则地址
-      - name: 'OISD small' #规则名称
-        path: 'https://small.oisd.nl/' #规则地址
-      - name: 'HaGeZi Multi PRO mini' #规则名称
-        #作者自述：只保留出现在 Top 1M/10M 榜单上的 Pro 域名，体积小、限制少，是他推荐的默认档位
-        path: 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.mini.txt' #规则地址
+        path: 'https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-easylist.txt' #规则地址
       - name: 'AWAvenue 秋风广告规则' #规则名称
         path: 'https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt' #规则地址
     #本地规则请将文件放置到项目路径rule目录中

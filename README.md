@@ -99,7 +99,9 @@
 - 凡是**拦截规则**指向清单内域名（含其子域）的，一律在合并阶段丢弃，不计入规则总量
 - 清单内域名同时以 `@@` 例外（allowlist）写进 `all.txt` / `dns.txt` 末尾，这样即使客户端另外还启用了 AdGuard DNS filter 之类的过滤器，核心业务也不会被挡
 
-默认保护字节跳动（抖音 / 今日头条）、小红书、淘宝 UT 埋点、微信、vivo 推送 SDK，以及 Google / Apple / Microsoft 的登录与商店核心域名。
+默认只保护**拦了会坏功能**的域名：抖音主站与资源分发（`douyin.com`、`douyinpic.com`、`douyinvod.com`、`douyinstatic.com`、`iesdouyin.com`）、小红书根域（`store`／`t2` 等商城与接口在其下）、以及 Apple／Microsoft 登录核心。
+
+刻意**不**保护的：字节埋点根域（`snssdk.com`／`zijieapi.com`／`amemv.com`／`volces.com`／`ctobsnssdk.com`）、vivo 的 `*-stsdk.vivo.com.cn` 上报集群、淘宝 `h-adashx.ut.taobao.com`、`googleapis.com` 的 analytics/admob 子域——这些拦了只是少一批日志，不影响功能。实测核心源在这些根域下拦的也恰好全是 `log`/`mon`/`applog`/`mssdk`/`ads3`/`ads5` 这类上报子域，真正的业务接口（`i.snssdk.com`、`aweme.snssdk.com`、`ecom.snssdk.com`）本来就没被拦，所以根域整体保护反而会白白放过一批该拦的埋点。
 
 **二、本地白名单（自行维护）** [`rule/local-rule.txt`](rule/local-rule.txt) 与 [`rule/private.txt`](rule/private.txt)
 
@@ -125,19 +127,23 @@
 
 ### 2026-11-13 白名单接入 & 上游补强
 
-**上游**
+**上游（三源结构）**
 
-- 新增 **HaGeZi Multi PRO mini**（`hagezi/dns-blocklists`）：作者自述只保留出现在 Top 1M/10M 榜单上的 Pro 域名，体积小、限制少，是他推荐的默认档位；补上了 AdGuard DNS filter + OISD + anti-AD 之外约 7 万个域名
-- 参考同行的取舍：`217heidai/adblockfilters` 那类聚合项目的目录里，值得借鉴的不是它的合并结果，而是它**剔除**了什么——它明确弃用 anti-AD 的 `adguard.txt` 与 yhosts（误杀记录见 `Mosney/anti-anti-AD`），也弃用了 1Hosts Lite、Hblock 这类「误杀较多」的列表
-- anti-AD 保留：中文命中率仍是它最强，但只取它的 `easylist.txt`，并按下面的白名单机制兜住误伤
+- 核心源：**217heidai/adblockfilters** 的成品 DNS 列表（GitHub Releases 分发，约 25.6 万条，其中 200 条是它自己维护的例外）。它已经把 AdGuard DNS filter、OISD、HaGeZi PRO mini、EasyList / EasyPrivacy、CJX、jiekouAD 等合并去重，并做过域名库校验与父域收敛，等于替我们完成了多源交叉验证；它淘汰掉的那几个（anti-AD 的 `adguard.txt`、yhosts、1Hosts Lite、Hblock）也是因为误杀记录，这部分判断直接沿用
+- 叠加 **anti-AD**（`anti-ad-easylist.txt`）：中文站点命中率仍是最强的一档，保留不删
+- 叠加 **AWAvenue 秋风广告规则**：补国内 App 与网页广告位
+- 移除独立挂载的 AdGuard DNS filter / OISD / HaGeZi：内容已在核心源内，重复挂载只增加体积、不提高命中
 
 **白名单接入（本轮重点）**
 
 - `@@` 例外提升为独立规则类型 `WHITELIST`：此前它会被当成 REGEX/MODIFY 写进 `regex.txt`、`modify.txt`，导致 `dns.txt` 里的例外残缺、`$important` 结尾的例外根本进不了 `dns.txt`；现在例外只写 `all.txt` / `dns.txt`，纯列表文件保持干净
-- 新增 `rule/local-rule.txt`（本地私有白名单）：预置微信图片与登录链路、搜狗输入法、一键登录、淘宝/京东/支付宝/拼多多/B站/快手/美团/高德主 API 网关、Google Play 与 App Store 等业务域名
-- 首次接入仓库里原有的 `rule/private.txt`（1031 条）：它一直存在但**从未参与合并**，README 里「白名单规则数量」统计的是它，实际却不起作用；现在它与 `local-rule.txt` 一并被解析
+- 新增 `rule/local-rule.txt`（本地私有白名单）：预置微信图片与登录链路、搜狗输入法、一键登录、淘宝/京东/支付宝/拼多多/B站/快手/美团/高德主 API 网关、Google Play 与 App Store 等业务域名；核心源里命中的 `wxs.qq.com`、`apd-pcdnwx*`、`mobileservice.cn`、`shouji.sogou.com` 等全由它放行
+- 首次接入仓库里原有的 `rule/private.txt`（1031 行）：它一直存在但**从未参与合并**，README 里「白名单规则数量」统计的是它，实际却不起作用；现在它与 `local-rule.txt` 一并被解析
 - 新增 `AllowList`：合并阶段把指向白名单域名的拦截规则直接丢弃，输出里不再出现「一边拦一边放」的自相矛盾条目，日志新增「白名单丢弃 => N」
-- 保护清单补充 `douyin.com`、`iesdouyin.com`
+- 保护清单按「只保护拦了会坏功能的域」重建：移除 `snssdk.com`、`zijieapi.com`、`amemv.com`、`volces.com`、`stsdk.vivo.com.cn`、`h-adashx.ut.taobao.com`、`weixin.qq.com`、`xhscdn.com`、`googleapis.com`、`gstatic.com`、`android.com`、`mzstatic.com`、`g.live.com` 等根域级放行；只保留抖音站点与 CDN、小红书根域、Apple/Microsoft 登录核心
+- 依据：核心源在 `snssdk.com` 下拦的 29 条、`zijieapi.com` 下 62 条，全是 `log`/`mon`/`applog`/`mssdk`/`ads3`/`ads5` 埋点子域；`i.snssdk.com`、`aweme.snssdk.com`、`ecom.snssdk.com` 这些真正的业务接口并未被拦。根域级保护等于把这些该拦的埋点也一并放行
+- 历史白名单里 4 条品牌级放行（`@@||uc.cn^`、`@@||quark.cn^`、`@@||ele.me^`、`@@||app-monitor.ele.me^`）一并删除：它们会让 UC／夸克／饿了么的全部广告位失守
+- 保护清单补充 `douyin.com`、`iesdouyin.com`、`douyinstatic.com`；`douyinstatic.com` 下的 `lf3-webcastcdn-tos-sign` 是直播播放地址签名，拦了会直播卡住
 
 ### 2026-11-13 规则源重构 & 误伤治理
 
@@ -148,6 +154,7 @@
 **规则源重构**
 
 - 移除 6 个源：`5whys AdGuardHome-rules`（单源 37.7 万条，占旧集合 59%）、`217heidai adblockfilters`、`adrules.top`、`GOODBYEADS`、`10007 专属规则`、`Potterli20 加速 Hosts`（这项其实是 GitHub 加速 hosts，不是广告规则，混进来会把域名解析改到第三方 IP）
+  - 其中 `217heidai` 后来以它的成品 DNS 列表重新作为核心源，见上一条更新日志
 - 改为 4 个维护活跃、误伤控制严格的源：**AdGuard DNS filter**（官方 DNS 专用）、**anti-AD**（中文命中率高）、**OISD small**（官方口号即「Block. Don't break.」）、**AWAvenue 秋风广告规则**
 - 合并总量由 63.7 万降到约 21.9 万，去掉了约三分之二的冗余与可疑条目，AdGuard Home 加载更快、内存占用更小
 
