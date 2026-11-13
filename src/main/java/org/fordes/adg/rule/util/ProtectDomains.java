@@ -34,26 +34,38 @@ public class ProtectDomains {
 
     /**
      * 原始规则行是否指向受保护域名
+     * <p>不只看 {@code ||xxx^} 这种纯域名规则：正则（{@code /...zijieapi\.com/}）、通配
+     * （{@code ||ads*-normal-*.zijieapi.com^}）、hosts（{@code 0.0.0.0 xxx.snssdk.com}）都要覆盖，
+     * 否则误伤会从这几类写法绕过来。判断按「域名出现在主机名边界上」进行，
+     * 因此 {@code ctobsnssdk.com} 不会因为包含 {@code snssdk.com} 而被误判。
      *
      * @param line    原始规则行，用于识别 {@code @@} 例外（例外本身是白名单，不能丢）
      * @param content 清理掉基础修饰符后的规则内容
      * @return true 表示属于误伤，应当丢弃
      */
     public static boolean blocksProtected(String line, String content) {
-        if (DOMAINS.isEmpty()) {
+        if (DOMAINS.isEmpty() || content == null || content.isEmpty()) {
             return false;
         }
         String raw = line == null ? "" : line.trim();
         if (raw.startsWith("@@")) {
             return false;
         }
-        String host = hostOf(content);
-        if (host.isEmpty() || host.indexOf('*') >= 0) {
-            return false;
-        }
+        //正则里的 \. 会拆开域名，去掉反斜杠后再比
+        String text = content.toLowerCase(Locale.ROOT).replace("\\", "");
         for (String domain : DOMAINS) {
-            if (host.equals(domain) || host.endsWith("." + domain)) {
-                return true;
+            int from = 0;
+            while (true) {
+                int idx = text.indexOf(domain, from);
+                if (idx < 0) {
+                    break;
+                }
+                int end = idx + domain.length();
+                if ((idx == 0 || !isHostChar(text.charAt(idx - 1)))
+                        && (end >= text.length() || !isHostChar(text.charAt(end)))) {
+                    return true;
+                }
+                from = idx + 1;
             }
         }
         return false;
@@ -66,22 +78,8 @@ public class ProtectDomains {
         return DOMAINS;
     }
 
-    /**
-     * 从规则内容里取域名：规则可能带 {@code ^}、{@code $修饰}、路径或 hosts 的地址部分
-     */
-    private static String hostOf(String content) {
-        if (content == null) {
-            return "";
-        }
-        int end = content.length();
-        for (int i = 0; i < content.length(); i++) {
-            char c = content.charAt(i);
-            if (c == '^' || c == '$' || c == '/' || c == ' ' || c == '|' || c == '#') {
-                end = i;
-                break;
-            }
-        }
-        return content.substring(0, end).trim().toLowerCase(Locale.ROOT);
+    private static boolean isHostChar(char c) {
+        return Character.isLetterOrDigit(c) || c == '-' || c == '_';
     }
 
     private static Set<String> load() {
