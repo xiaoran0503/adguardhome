@@ -1,4 +1,4 @@
 ! [关圣®云去广告DNS 去广告规则列表]
 ! Title: hosts.txt
-! Last Modified: 2026-11-13 11:13:50
+! Last Modified: 2026-11-13 11:28:10
 ! Homepage: https://github.com/xiaoran0503/adguardhome/
