@@ -1,6 +1,6 @@
 ! [关圣®云去广告DNS 去广告规则列表]
 ! Title: regex.txt
-! Last Modified: 2026-11-13 10:44:37
+! Last Modified: 2026-11-13 10:48:02
 ! Homepage: https://github.com/xiaoran0503/adguardhome/
 ! 👇This Part Merge from: AdGuard DNS filter (https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt)
 ||valentine.xhamster.*^
@@ -11,7 +11,6 @@
 ||ads.livetv*.me^
 ||advert*.livesportmedia.eu^
 ||iphone-caviar.ru*entranceId
-||subnewss*.net^
 ||bondzgi*.
 ||prebid-*.rubiconproject.com^
 ||hostingcloud.*.wasm^
@@ -94,7 +93,6 @@
 ||vs*.gzcu.u3.ucweb.com^
 ||engage.3m*^
 ||adm*.autoimg.cn^
-||ads*-normal-hl.zijieapi.com^
 ||xn--xhq9mt12cf5v.*^
 ||qpb*.sohu.com^
 ||ad-*.com^
@@ -156,7 +154,6 @@
 ||telemetry*.transcend.io^
 ||cnt.vivatube.
 ||collector-*.perimeterx.net^
-||log*-misc-lf.amemv.com^
 ||stats.zone-telechargement.
 ||powa-ingest-prod-*.video-player.arcpublishing.com^
 ||f-log-*.grammarly.io^
@@ -178,7 +175,6 @@
 ||device-metrics-us*.amazon.com^
 ||ana*.inews24.com^
 ||cnt.nuvid.
-||ads*-normal-*.zijieapi.com^
 ||api*.bidmachine.io^
 ||t*.playdigo.live^
 ||wslog-global-dual.cool*cloud.com^
@@ -216,6 +212,7 @@
 ||a*.smlog.co.kr^
 ||mcs-*.tiktok.com^
 ||seller-log-collector.shopee.
+||subnewss*.net^
 ||tag-v*.kuzen.io^
 ||track.*.roku.com^
 ||device-metrics-*.amazon.com^
@@ -262,7 +259,6 @@
 ||batchlogging*-eu.truecaller.com^
 ||eum*.instana.io^
 ||report.*.gbqofs.io^
-||ads*-normal-lq.zijieapi.com^
 ||tnc16-*.byteoversea.com^
 ||analytics.dulo.
 ||ads-dmp-collect.*.karrotmarket.com^
@@ -295,7 +291,6 @@
 ||ulog-*.ksapisrv.com^
 ||lively-collect-elb-*.amazonaws.com^
 ||analytics-rollout-*.amazonaws.com^
-||mssdk*.zijieapi.com^
 ||log-v*-boot.capcutapi.com^
 ||u*.takru.com^
 ||rtbimp-loadbalancer-*.amazonaws.com^
@@ -335,12 +330,8 @@
 ||collector-*.px-client.net^
 ||adcounter*.uptolike.ru^
 ||stats.mapple.*^
-||ads*-normal*.zijieapi.com^
 ||ad-*.amazonaws.com^
-||tnc*.zijieapi.com^
-||srmdata-*.com^
 ||use-trk*.bluevoox.com^
-||log*.zijieapi.com^
 ||sw.vidmoly.
 ||log*.aliyuncs.com^
 ||geoloc*.geovisite.ovh^
@@ -398,7 +389,6 @@
 ||iad-*.appboy.com^
 ||ping*.bidease.com^
 ||jtbo*.nqxvevk.cn^
-||polaris*-normal-*.zijieapi.com^
 |a.klaviyo.com^
 ||analytics*.carambo.la^
 ||aan.amazon.*^
@@ -414,7 +404,6 @@
 ||spa-tracker*.spapi.io^
 ||mobiadvert*.livesportmedia.eu^
 ||pixel-*.convertagain.net^
-||analytics*.prezly.com^
 ||collector.xhamster*.
 ||collector*.ex.co^
 ||touch.yesim.
@@ -422,25 +411,27 @@
 ||tag-based.s3.*.amazonaws.com^
 ||logs*.smithsonian.museum^
 ||counter*.freecounter.ovh^
-||parkdomainreal*.site^
-||browser-intake-*-datadoghq.com^
-||metrics*.fitanalytics.com^
 ||suite*.linximpulse.net^
 ||cl*.k5a.io^
 ||rum*.a.trbcdn.net^
-||livetracker.*.pangea-cms.com^
-||stat.tiara.
 ||i-*.ci360.sas.com^
-||eclog*-*.cafe24.com^
 ||snowplow-collector-*.amazonaws.com^
 ||sock*-goguardian.pusher.com^
 ||collector-*.tvsquared.com^
-||query*.petametrics.com^
 ||pixelapi-*.cs.mysamba.tv^
+||rum*.cdnvideo.ru^
+||parkdomainreal*.site^
+||browser-intake-*-datadoghq.com^
+||metrics*.fitanalytics.com^
+||livetracker.*.pangea-cms.com^
+||stat.tiara.
+||eclog*-*.cafe24.com^
+||srmdata-*.com^
+||analytics*.prezly.com^
+||query*.petametrics.com^
 ||stats*.videonow.ru^
 ||track.tiara.
 ||analytics*.clickdimensions.com^
-||rum*.cdnvideo.ru^
 ||v*.sitecounter.site^
 ! 👇This Part Merge from: AdGuard DNS filter (https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt)
 ||tccd.douglas.
@@ -453,7 +444,6 @@
 ! 👇This Part Merge from: AdGuard DNS filter (https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt)
 ||ad*.bilgin.pro^
 ||basvformu*.xyz^
-||get-me-wow.
 ||ad*.tmgrup.com.tr^
 ||partner.superbahisaffiliates*.com^
 ! 👇This Part Merge from: AdGuard DNS filter (https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt)
@@ -474,6 +464,7 @@ analytics-*.aasaam.com
 ||t.delfi.
 ||ysdm*.ys137.com.cn^
 ||adservice.google.co.*
+||get-me-wow.
 ||get*bannerads-6egeg2u34q-du.a.run.app^
 ||advert*.ultraweb.hu^
 ||as*.prog.hu^
