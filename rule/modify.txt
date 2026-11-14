@@ -1,6 +1,6 @@
 ! [关圣®云去广告DNS 去广告规则列表]
 ! Title: modify.txt
-! Last Modified: 2026-11-14 13:55:08
+! Last Modified: 2026-11-14 22:55:27
 ! Homepage: https://github.com/xiaoran0503/adguardhome/
 ! 👇This Part Merge from: AWAvenue 秋风广告规则 (https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt)
 *-ad.video.yximgs.com*
