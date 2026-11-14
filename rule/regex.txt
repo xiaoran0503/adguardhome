@@ -1,6 +1,6 @@
 ! [关圣®云去广告DNS 去广告规则列表]
 ! Title: regex.txt
-! Last Modified: 2026-11-14 22:55:27
+! Last Modified: 2026-11-15 04:33:37
 ! Homepage: https://github.com/xiaoran0503/adguardhome/
 ! 👇This Part Merge from: anti-AD 中文规则 (https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-easylist.txt)
 ||da.hornbach.*^
