@@ -65,3 +65,6 @@
 
 ! 说明：字节的埋点根域（snssdk / zijieapi / amemv / volces / ctobsnssdk / isnssdk）不做保护，
 ! 核心源里被拦的 29 条 snssdk 规则全是 log/mon/applog/mssdk 这类上报子域，属于该拦的范围。
+
+! ---------- 个人指定放行 ----------
+@@||stripchat.com^
